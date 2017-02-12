@@ -2,12 +2,16 @@ import * as Config from "../../config/config";
 
 import * as harvester from "./roles/harvester";
 
+import * as upgrader from "./roles/upgrader";
+
 import { log } from "../../components/support/log";
 
 export let creeps: Creep[];
 export let creepCount: number = 0;
 
 export let harvesters: Creep[] = [];
+
+export let upgraders: Creep[] = [];
 
 /**
  * Initialization scripts for CreepManager module.
@@ -23,6 +27,9 @@ export function run(room: Room): void {
     if (creep.memory.role === "harvester") {
       harvester.run(creep);
     }
+    if (creep.memory.role === "upgrader") {
+      upgrader.run(creep);
+    }
   });
 }
 
@@ -37,6 +44,8 @@ function _loadCreeps(room: Room) {
 
   // Iterate through each creep and push them into the role array.
   harvesters = _.filter(creeps, (creep) => creep.memory.role === "harvester");
+
+  upgraders = _.filter(creeps, (creep) => creep.memory.role === "upgrader");
 
   if (Config.ENABLE_DEBUG_MODE) {
     log.info(creepCount + " creeps found in the playground.");
@@ -72,6 +81,13 @@ function _buildMissingCreeps(room: Room) {
 
     _.each(spawns, (spawn: Spawn) => {
       _spawnCreep(spawn, bodyParts, "harvester");
+    });
+  }
+
+  if (upgraders.length < 1) {
+    bodyParts = [WORK, WORK, CARRY, MOVE];
+    _.each(spawns, (spawn: Spawn) => {
+      _spawnCreep(spawn, bodyParts, "upgrader");
     });
   }
 }
